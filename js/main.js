@@ -38,11 +38,26 @@ var paddleX = (canvas.width-paddleWidth)/2
 var rightPressed = false;
 var leftPressed = false;
 
+// bricks
+var brickRowCount = 3;
+var brickColumnCount = 5;
+var brickWidth = 75;
+var brickHeight = 20;
+var brickPadding = 10;
+var brickOffsetTop = 30;
+var brickOffsetLeft = 30;
 
+var bricks = [];
+for(c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(r=0; r<brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0 };
+    }
+}
+  // array的每個元素裡有array array裡的每個元素是一個{數組} 或者其實算是物件?  雖然看過好多次這種了
+  // 但還是似懂非懂 感覺這種2d-array很常見 尤其是讀到machine learning時還常常有n維的矩陣
 
-
-
-
+// functions
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI*2);
@@ -61,11 +76,32 @@ function drawPaddle() {
 }
 
 
+function drawBricks() {
+	for(c=0; c<brickColumnCount; c++) {
+		for(r=0; r<brickRowCount; r++) {
+			var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+			var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+			bricks[c][r].x = brickX;
+			bricks[c][r].y = brickY;
+			ctx.beginPath();
+            ctx.rect(brickX, brickY, brickWidth, brickHeight);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+		}
+
+	}
+}
+
+
+
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawPaddle();
-
+    drawBricks();
+    collisionDetection();
     if(x + dx > canvas.width-ballRadius || x + dx < 0) {
     	dx = -dx;
 
@@ -81,6 +117,25 @@ function draw() {
 		ballGreen = random(0,255);
 		ballBlue = random(0,255);
 	}
+
+  // 第5篇教學的內容 會alert好幾次  難道是載入時間太長? 總之先關掉 
+//     if(y + dy < ballRadius) {
+//         dy = -dy;
+//         ballRed = random(0,255);
+//         ballGreen = random(0,255);
+//         ballBlue = random(0,255);
+//     } else if(y + dy > canvas.height-ballRadius) {
+//         if(x > paddleX && x < paddleX + paddleWidth) {
+//             dy = -dy;
+//         } else {
+//             // alert("GAME OVER");
+//             document.location.reload();
+// ​
+//             // setInterval(()=>{console.log('GAME OVER')}, 1);
+//         }
+//     }
+
+
 
     x += dx;
     y += dy;
@@ -117,8 +172,16 @@ function keyUpHandler(e) {
 }
 
 
-
-
+function collisionDetection() {
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++) {
+            var b = bricks[c][r];
+            if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                dy = -dy;
+            }
+        }
+    }
+}
 
 
 
